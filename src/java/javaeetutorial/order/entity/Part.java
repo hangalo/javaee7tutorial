@@ -12,10 +12,17 @@ import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinColumns;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.SecondaryTable;
+import javax.persistence.Table;
 import javax.persistence.Temporal;
 import static javax.persistence.TemporalType.DATE;
 
@@ -23,8 +30,21 @@ import static javax.persistence.TemporalType.DATE;
  *
  * @author desenvolvimento
  */
+@IdClass(PartKey.class)
+
 @Entity
+@Table(name = "part")
+@SecondaryTable(name = "part_detail", pkJoinColumns = {
+    @PrimaryKeyJoinColumn(name = "part_number", referencedColumnName = "part_number"),
+    @PrimaryKeyJoinColumn(name = "revision", referencedColumnName = "revision")
+})
+
+@NamedQuery(
+        name = "findAllParts", query = "SELECT p FROM Part p ORDER BY p.partNumber"
+)
+
 public class Part implements Serializable {
+
     private static final long serialVersionUID = 1L;
     private String partNumber;
     private int revision;
@@ -44,12 +64,13 @@ public class Part implements Serializable {
         this.revision = revision;
         this.description = description;
         this.revisionDate = revisionDate;
-         this.specification = specification;
-        this.drawing = drawing;       
-       this.parts = new ArrayList<>();
+        this.specification = specification;
+        this.drawing = drawing;
+        this.parts = new ArrayList<>();
     }
-@Id
-@Column(nullable=false)
+
+    @Id
+    @Column(nullable = false)
     public String getPartNumber() {
         return partNumber;
     }
@@ -75,7 +96,8 @@ public class Part implements Serializable {
     public void setDescription(String description) {
         this.description = description;
     }
-@ Temporal(DATE)
+
+    @Temporal(DATE)
     public Date getRevisionDate() {
         return revisionDate;
     }
@@ -93,8 +115,9 @@ public class Part implements Serializable {
     public void setDrawing(Serializable drawing) {
         this.drawing = drawing;
     }
-@Column(table = "part_detail")
-@Lob
+
+    @Column(table = "part_detail")
+    @Lob
     public String getSpecification() {
         return specification;
     }
@@ -102,11 +125,13 @@ public class Part implements Serializable {
     public void setSpecification(String specification) {
         this.specification = specification;
     }
-@ManyToOne
-@JoinColumns({
-@JoinColumn(name="bom_part_number")
 
-})
+    @ManyToOne
+    @JoinColumns({
+        @JoinColumn(name = "bom_part_number", referencedColumnName = "part_number"),
+        @JoinColumn(name = "bom_revision", referencedColumnName = "revision")
+
+    })
     public Part getBomPart() {
         return bomPart;
     }
@@ -115,6 +140,7 @@ public class Part implements Serializable {
         this.bomPart = bomPart;
     }
 
+    @OneToMany(mappedBy = "bomPart")
     public List<Part> getParts() {
         return parts;
     }
@@ -123,6 +149,7 @@ public class Part implements Serializable {
         this.parts = parts;
     }
 
+    @OneToOne(mappedBy = "part")
     public VendorPart getVendorPart() {
         return vendorPart;
     }
@@ -130,6 +157,5 @@ public class Part implements Serializable {
     public void setVendorPart(VendorPart vendorPart) {
         this.vendorPart = vendorPart;
     }
-    
-    
+
 }
