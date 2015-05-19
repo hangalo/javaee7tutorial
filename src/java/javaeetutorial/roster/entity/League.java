@@ -6,53 +6,83 @@
 package javaeetutorial.roster.entity;
 
 import java.io.Serializable;
+import java.util.Collection;
+import static javax.persistence.CascadeType.ALL;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 /**
  *
  * @author desenvolvimento
  */
 @Entity
-public class League implements Serializable {
+@Table(name = "league")
+public abstract class League implements Serializable {
     private static final long serialVersionUID = 1L;
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-
-    public Long getId() {
+    protected String id;
+    protected String name;
+    protected String sport;
+    protected Collection<Team> teams;
+@Id
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    @Override
-    public int hashCode() {
-        int hash = 0;
-        hash += (id != null ? id.hashCode() : 0);
-        return hash;
+    public String getName() {
+        return name;
     }
 
-    @Override
-    public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof League)) {
-            return false;
-        }
-        League other = (League) object;
-        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
-            return false;
-        }
-        return true;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    @Override
-    public String toString() {
-        return "javaeetutorial.roster.entity.League[ id=" + id + " ]";
+    public String getSport() {
+        return sport;
+    }
+
+    public void setSport(String sport) {
+        this.sport = sport;
+    }
+@OneToMany(cascade=ALL, mappedBy="league")
+    public Collection<Team> getTeams() {
+        return teams;
+    }
+
+    public void setTeams(Collection<Team> teams) {
+        this.teams = teams;
     }
     
+    
+    
+    public void addTeam(Team team){
+    
+    this.getTeams().add(team);
+    }
+    
+    public void dropTeam(Team team){
+    
+    this.getTeams().remove(team);
+   }
+    
+  
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
